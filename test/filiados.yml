@@ -6,3 +6,42 @@
   - name: "Basic get is not available for anonymous"
   - url: "/filiados"
   - expected_status: [404]
+  
+- test:
+  - name: "Can't any filiados when as no role related with user should see only they register"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjIifQ.G1UyO-BLXz5Vjys7Py-iJtlCHeU69C71zSgcTHdFiKo'}
+  - url: "/filiados"
+  - validators:
+    - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'B Name'}
+    - compare: {jsonpath_mini: '1', comparator: 'str_eq', expected: 'None'}
+
+- test:
+  - name: "Can see all filiados from my city when access level municipal as found for the current user"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjEifQ.BHB2mLvjPyUxvGQjpkC_rV3r4BZAM6UtPajVtapX9rg'}
+  - url: "/filiados"
+  - validators:
+    - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'A Name'}
+    - compare: {jsonpath_mini: '1.nome', comparator: 'str_eq', expected: 'B Name'}
+    - compare: {jsonpath_mini: '2', comparator: 'str_eq', expected: 'None'}
+
+- test:
+  - name: "Can see all filiados from my state when access level estadual as found for the current user"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjMifQ.sL0hwQ-QiucCgH25lk47xQWJVtUhAn8-iK9ljhMAgsg'}
+  - url: "/filiados"
+  - validators:
+    - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'A Name'}
+    - compare: {jsonpath_mini: '1.nome', comparator: 'str_eq', expected: 'B Name'}
+    - compare: {jsonpath_mini: '2.nome', comparator: 'str_eq', expected: 'C Name'}
+    - compare: {jsonpath_mini: '3', comparator: 'str_eq', expected: 'None'}
+
+- test:
+  - name: "Can see all filiados when access level nacional as found for the current user"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjQifQ.TPo1mElKA2w2OpDPWYtaQtTX89QKjs_Gz1hkrHZrRw0'}
+  - url: "/filiados"
+  - validators:
+    - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'A Name'}
+    - compare: {jsonpath_mini: '1.nome', comparator: 'str_eq', expected: 'B Name'}
+    - compare: {jsonpath_mini: '2.nome', comparator: 'str_eq', expected: 'C Name'}
+    - compare: {jsonpath_mini: '3.nome', comparator: 'str_eq', expected: 'D Name'}
+    - compare: {jsonpath_mini: '4.nome', comparator: 'str_eq', expected: 'E Name'}
+
