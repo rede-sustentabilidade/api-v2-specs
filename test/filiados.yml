@@ -1,0 +1,8 @@
+-
+- config:
+  - testset: "Filiados"
+
+- test:
+  - name: "Basic get is not available for anonymous"
+  - url: "/filiados"
+  - expected_status: [404]
