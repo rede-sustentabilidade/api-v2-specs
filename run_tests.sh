@@ -24,11 +24,24 @@ if [[ "$postgrest_bin" == "unknown" ]]; then
 fi
 
 echo "Initiating database users..."
-createuser --no-login member > /dev/null 2>&1
-createuser --no-login admin > /dev/null 2>&1
 createuser --no-login anonymous > /dev/null 2>&1
+createuser --no-login web_user > /dev/null 2>&1
+createuser --no-login admin > /dev/null 2>&1
+createuser --no-login rs_role_admin_master > /dev/null 2>&1
+createuser --no-login rs_role_afiliado > /dev/null 2>&1
+createuser --no-login rs_role_coord_organizacao > /dev/null 2>&1
+createuser --no-login rs_role_coord_executiva > /dev/null 2>&1
+createuser --no-login rs_role_coord_geral > /dev/null 2>&1
+createuser --no-login rs_role_coord_formacao > /dev/null 2>&1
+createuser --no-login rs_role_coord_comunicacao > /dev/null 2>&1
+createuser --no-login rs_role_coord_acao_institucional > /dev/null 2>&1
+createuser --no-login rs_role_coord_politicas_pub > /dev/null 2>&1
+createuser --no-login rs_role_coord_movimentos_sociais > /dev/null 2>&1
+createuser --no-login rs_role_coord_ativismo > /dev/null 2>&1
+createuser --no-login rs_role_coord_relacoes_int > /dev/null 2>&1
+createuser --no-login rs_role_coord_vogal_executiva > /dev/null 2>&1
 createuser rede -s > /dev/null 2>&1
-createuser postgrest -g admin -g member -g anonymous > /dev/null 2>&1
+createuser postgrest -g admin -g web_user -g anonymous > /dev/null 2>&1
 
 echo "Initiating database schema..."
 dropdb --if-exists $db
