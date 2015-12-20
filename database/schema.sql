@@ -248,8 +248,8 @@ CREATE TABLE afiliados (
     ativista character varying(255),
     escolaridade character varying(255),
     local_trabalho character varying(255),
-    created_at timestamp without time zone DEFAULT '-infinity'::timestamp without time zone,
-    updated_at timestamp without time zone DEFAULT '-infinity'::timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now(),
+    updated_at timestamp without time zone DEFAULT now(),
     numero character varying(255),
     complemento character varying(255),
     filiado_outros_quais character varying(255),
@@ -1955,6 +1955,9 @@ ALTER TABLE ONLY tags
 REVOKE ALL ON SCHEMA "1" FROM PUBLIC;
 REVOKE ALL ON SCHEMA "1" FROM rede;
 GRANT ALL ON SCHEMA "1" TO rede;
+GRANT USAGE ON SCHEMA "1" TO anonymous;
+GRANT USAGE ON SCHEMA "1" TO admin;
+GRANT USAGE ON SCHEMA "1" TO web_user;
 
 
 --
@@ -1965,6 +1968,31 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- Name: rs; Type: ACL; Schema: -; Owner: -
+--
+
+REVOKE ALL ON SCHEMA rs FROM PUBLIC;
+REVOKE ALL ON SCHEMA rs FROM rede;
+GRANT ALL ON SCHEMA rs TO rede;
+GRANT ALL ON SCHEMA rs TO rede;
+GRANT USAGE ON SCHEMA rs TO web_user;
+GRANT USAGE ON SCHEMA rs TO admin;
+
+
+SET search_path = rs, pg_catalog;
+
+--
+-- Name: afiliados; Type: ACL; Schema: rs; Owner: -
+--
+
+REVOKE ALL ON TABLE afiliados FROM PUBLIC;
+REVOKE ALL ON TABLE afiliados FROM rede;
+GRANT ALL ON TABLE afiliados TO rede;
+GRANT SELECT ON TABLE afiliados TO web_user;
+GRANT SELECT ON TABLE afiliados TO admin;
 
 
 SET search_path = "1", pg_catalog;
@@ -1978,6 +2006,19 @@ REVOKE ALL ON TABLE filiados FROM rede;
 GRANT ALL ON TABLE filiados TO rede;
 GRANT SELECT ON TABLE filiados TO admin;
 GRANT SELECT ON TABLE filiados TO web_user;
+
+
+SET search_path = rs, pg_catalog;
+
+--
+-- Name: regra_afiliados; Type: ACL; Schema: rs; Owner: -
+--
+
+REVOKE ALL ON TABLE regra_afiliados FROM PUBLIC;
+REVOKE ALL ON TABLE regra_afiliados FROM rede;
+GRANT ALL ON TABLE regra_afiliados TO rede;
+GRANT SELECT ON TABLE regra_afiliados TO web_user;
+GRANT SELECT ON TABLE regra_afiliados TO admin;
 
 
 --
