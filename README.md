@@ -57,3 +57,13 @@ To bootstrap a basic get test against the foo endpoint use the command:
 ./api_spec.py generate_test --name=foo
 ```
 
+## JWT testing
+
+To test with JWT auth you can generate a token via jwt.io with the current test secret ```gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C```, we already have some pre generated tokens:
+
+```
+user_id 1 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjEifQ.BHB2mLvjPyUxvGQjpkC_rV3r4BZAM6UtPajVtapX9rg
+user_id 2 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjIifQ.G1UyO-BLXz5Vjys7Py-iJtlCHeU69C71zSgcTHdFiKo
+user_id 3 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjMifQ.sL0hwQ-QiucCgH25lk47xQWJVtUhAn8-iK9ljhMAgsg
+user_id 4 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjQifQ.TPo1mElKA2w2OpDPWYtaQtTX89QKjs_Gz1hkrHZrRw0
+```
