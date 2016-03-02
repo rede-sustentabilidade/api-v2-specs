@@ -1,3 +1,5 @@
+ALTER DATABASE :db SET postgrest.claims.user_id TO '';
+
 INSERT INTO rs.estados (id, nome, uf, regiao) VALUES
        ('1', 'Acre', 'AC', 'Norte'),
        ('2', 'Alagoas', 'AL', 'Nordeste'),

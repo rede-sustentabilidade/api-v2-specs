@@ -143,10 +143,15 @@ CREATE FUNCTION can_access_with_roles(role_names name[], cid integer, sid intege
 --
 
 CREATE FUNCTION current_user_id() RETURNS integer
-    LANGUAGE sql
+    LANGUAGE plpgsql
     AS $$
-            SELECT nullif(current_setting('user_vars.user_id'), '')::integer;
-       $$;
+BEGIN
+RETURN nullif(current_setting('postgrest.claims.user_id'), '')::integer;
+EXCEPTION WHEN others THEN 
+SET postgrest.claims.user_id TO '';
+RETURN NULL::integer;
+END
+$$;
 
 
 --
@@ -189,19 +194,6 @@ CREATE FUNCTION current_user_roles() RETURNS name[]
           FROM rs.regra_afiliados 
           WHERE user_id = current_user_id();
        $$;
-
-
---
--- Name: is_owner_or_admin(integer); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION is_owner_or_admin(integer) RETURNS boolean
-    LANGUAGE sql STABLE
-    AS $_$
-          SELECT
-          current_user_id() = $1
-          OR current_user = 'rs_role_admin_master';
-       $_$;
 
 
 --
@@ -1953,8 +1945,8 @@ ALTER TABLE ONLY tags
 --
 
 REVOKE ALL ON SCHEMA "1" FROM PUBLIC;
-REVOKE ALL ON SCHEMA "1" FROM rede;
-GRANT ALL ON SCHEMA "1" TO rede;
+REVOKE ALL ON SCHEMA "1" FROM rs;
+GRANT ALL ON SCHEMA "1" TO rs;
 GRANT USAGE ON SCHEMA "1" TO anonymous;
 GRANT USAGE ON SCHEMA "1" TO admin;
 GRANT USAGE ON SCHEMA "1" TO web_user;
@@ -1965,7 +1957,8 @@ GRANT USAGE ON SCHEMA "1" TO web_user;
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
+REVOKE ALL ON SCHEMA public FROM rs;
+GRANT ALL ON SCHEMA public TO rs;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
@@ -1975,8 +1968,8 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 
 REVOKE ALL ON SCHEMA rs FROM PUBLIC;
-REVOKE ALL ON SCHEMA rs FROM rede;
-GRANT ALL ON SCHEMA rs TO rede;
+REVOKE ALL ON SCHEMA rs FROM rs;
+GRANT ALL ON SCHEMA rs TO rs;
 GRANT ALL ON SCHEMA rs TO rede;
 GRANT USAGE ON SCHEMA rs TO web_user;
 GRANT USAGE ON SCHEMA rs TO admin;
@@ -1989,8 +1982,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE afiliados FROM rede;
-GRANT ALL ON TABLE afiliados TO rede;
+REVOKE ALL ON TABLE afiliados FROM rs;
+GRANT ALL ON TABLE afiliados TO rs;
 GRANT SELECT ON TABLE afiliados TO web_user;
 GRANT SELECT ON TABLE afiliados TO admin;
 
@@ -2002,8 +1995,8 @@ SET search_path = "1", pg_catalog;
 --
 
 REVOKE ALL ON TABLE filiados FROM PUBLIC;
-REVOKE ALL ON TABLE filiados FROM rede;
-GRANT ALL ON TABLE filiados TO rede;
+REVOKE ALL ON TABLE filiados FROM rs;
+GRANT ALL ON TABLE filiados TO rs;
 GRANT SELECT ON TABLE filiados TO admin;
 GRANT SELECT ON TABLE filiados TO web_user;
 
@@ -2015,8 +2008,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE regra_afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE regra_afiliados FROM rede;
-GRANT ALL ON TABLE regra_afiliados TO rede;
+REVOKE ALL ON TABLE regra_afiliados FROM rs;
+GRANT ALL ON TABLE regra_afiliados TO rs;
 GRANT SELECT ON TABLE regra_afiliados TO web_user;
 GRANT SELECT ON TABLE regra_afiliados TO admin;
 

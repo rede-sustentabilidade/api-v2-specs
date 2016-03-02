@@ -62,8 +62,8 @@ To bootstrap a basic get test against the foo endpoint use the command:
 To test with JWT auth you can generate a token via jwt.io with the current test secret ```gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C```, we already have some pre generated tokens:
 
 ```
-user_id 1 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjEifQ.BHB2mLvjPyUxvGQjpkC_rV3r4BZAM6UtPajVtapX9rg
-user_id 2 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjIifQ.G1UyO-BLXz5Vjys7Py-iJtlCHeU69C71zSgcTHdFiKo
-user_id 3 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjMifQ.sL0hwQ-QiucCgH25lk47xQWJVtUhAn8-iK9ljhMAgsg
-user_id 4 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjQifQ.TPo1mElKA2w2OpDPWYtaQtTX89QKjs_Gz1hkrHZrRw0
+user_id 1 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMSJ9.dEUw0q-niKR1r5UM6DbgCjThRVBSMZH02pT93DcmFwg
+user_id 2 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMiJ9.WZ7sSB1sTCaFoCpbBJ0GnyDNYHeWaZBbRQMypParGEc
+user_id 3 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMyJ9.etSjPXHxlxM3RqPt8z1GqqGbCJdVqzWPORh_9VU3xa4
+user_id 4 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiNCJ9.ht-uAyQ5r5rfqtHpOWsfHLmeE-sykJFlW9pVEGAiKyQ
 ```

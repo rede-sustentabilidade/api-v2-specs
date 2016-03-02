@@ -9,7 +9,7 @@
   
 - test:
   - name: "Can't any filiados when as no role related with user should see only they register"
-  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjIifQ.G1UyO-BLXz5Vjys7Py-iJtlCHeU69C71zSgcTHdFiKo'}
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMiJ9.WZ7sSB1sTCaFoCpbBJ0GnyDNYHeWaZBbRQMypParGEc'}
   - url: "/filiados"
   - validators:
     - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'B Name'}
@@ -17,7 +17,7 @@
 
 - test:
   - name: "Can see all filiados from my city when access level municipal as found for the current user"
-  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjEifQ.BHB2mLvjPyUxvGQjpkC_rV3r4BZAM6UtPajVtapX9rg'}
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMSJ9.dEUw0q-niKR1r5UM6DbgCjThRVBSMZH02pT93DcmFwg'}
   - url: "/filiados"
   - validators:
     - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'A Name'}
@@ -26,7 +26,7 @@
 
 - test:
   - name: "Can see all filiados from my state when access level estadual as found for the current user"
-  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjMifQ.sL0hwQ-QiucCgH25lk47xQWJVtUhAn8-iK9ljhMAgsg'}
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMyJ9.etSjPXHxlxM3RqPt8z1GqqGbCJdVqzWPORh_9VU3xa4'}
   - url: "/filiados"
   - validators:
     - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'A Name'}
@@ -36,7 +36,7 @@
 
 - test:
   - name: "Can see all filiados when access level nacional as found for the current user"
-  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJpZCI6IjQifQ.TPo1mElKA2w2OpDPWYtaQtTX89QKjs_Gz1hkrHZrRw0'}
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiNCJ9.ht-uAyQ5r5rfqtHpOWsfHLmeE-sykJFlW9pVEGAiKyQ'}
   - url: "/filiados"
   - validators:
     - compare: {jsonpath_mini: '0.nome', comparator: 'str_eq', expected: 'A Name'}
