@@ -45,3 +45,15 @@
     - compare: {jsonpath_mini: '3.nome', comparator: 'str_eq', expected: 'D Name'}
     - compare: {jsonpath_mini: '4.nome', comparator: 'str_eq', expected: 'E Name'}
 
+- test:
+  - name: "Can insert a new filiado"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiNCJ9.ht-uAyQ5r5rfqtHpOWsfHLmeE-sykJFlW9pVEGAiKyQ', 'Content-type': 'application/json', 'Prefer': 'return=representation'}
+  - url: "/filiados"
+  - expected_status: [200, 201, 204]
+  - method: "POST"
+  - body: '{"user_id": "6", "birthday": "1990-03-10"}'
+  - validators:
+    - compare: {jsonpath_mini: 'user_id', comparator: 'str_eq', expected: '6'}
+    - compare: {jsonpath_mini: 'birthday', comparator: 'str_eq', expected: '1990-03-10'}
+
+
