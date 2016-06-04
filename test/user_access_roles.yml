@@ -1,0 +1,25 @@
+
+---
+- config:
+  - testset: "user_access_roles endpoint"
+
+- test:
+  - name: "Basic get is not avaiable for anonymous"
+  - url: "/user_access_roles"
+  - expected_status: [404]
+
+- test:
+  - name: "Get a list of current_user access roles, should be empty when user not have access"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiNCJ9.ht-uAyQ5r5rfqtHpOWsfHLmeE-sykJFlW9pVEGAiKyQ'}
+  - url: "/user_access_roles"
+  - validators:
+      - compare: {jsonpath_mini: '0.role_name', comparator: 'str_eq', expected: 'rs_role_afiliado'}
+      - compare: {jsonpath_mini: '1', comparator: 'str_eq', expected: 'None'}
+
+- test:
+  - name: "Get a list of current_user access roles"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoiNCJ9.Kx4gqaO79L39DPKv1WD1xOS-8EcEV-nBWZuHkMr-txs'}
+  - url: "/user_access_roles"
+  - validators:
+      - compare: {jsonpath_mini: '0.role_name', comparator: 'str_eq', expected: 'rs_role_afiliado'}
+      - compare: {jsonpath_mini: '1.role_name', comparator: 'str_eq', expected: 'rs_role_afiliado'}
