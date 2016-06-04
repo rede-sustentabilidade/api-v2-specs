@@ -524,6 +524,53 @@ CREATE TABLE states (
 ALTER TABLE ONLY states REPLICA IDENTITY NOTHING;
 
 
+SET search_path = public, pg_catalog;
+
+--
+-- Name: regra_afiliados_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE regra_afiliados_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+SET search_path = rs, pg_catalog;
+
+--
+-- Name: regra_afiliados; Type: TABLE; Schema: rs; Owner: -
+--
+
+CREATE TABLE regra_afiliados (
+    id bigint DEFAULT nextval('public.regra_afiliados_id_seq'::regclass) NOT NULL,
+    role_name name NOT NULL,
+    access_level public.access_level_kind NOT NULL,
+    user_id bigint,
+    city_id integer,
+    state_id integer
+);
+
+
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: user_access_roles; Type: VIEW; Schema: 1; Owner: -
+--
+
+CREATE VIEW user_access_roles AS
+ SELECT ra.id AS role_access_id,
+    ra.user_id,
+    ra.role_name,
+    ra.access_level,
+    ra.city_id,
+    ra.state_id
+   FROM rs.regra_afiliados ra
+  WHERE public.is_owner_or_admin(ra.user_id);
+
+
 SET search_path = rs, pg_catalog;
 
 --
@@ -581,18 +628,6 @@ CREATE SEQUENCE goose_db_version_id_seq
 --
 
 ALTER SEQUENCE goose_db_version_id_seq OWNED BY goose_db_version.id;
-
-
---
--- Name: regra_afiliados_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE regra_afiliados_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
 
 
 SET search_path = rs, pg_catalog;
@@ -1022,20 +1057,6 @@ CREATE SEQUENCE payments_id_seq
 --
 
 ALTER SEQUENCE payments_id_seq OWNED BY payments.id;
-
-
---
--- Name: regra_afiliados; Type: TABLE; Schema: rs; Owner: -
---
-
-CREATE TABLE regra_afiliados (
-    id bigint DEFAULT nextval('public.regra_afiliados_id_seq'::regclass) NOT NULL,
-    role_name name NOT NULL,
-    access_level public.access_level_kind NOT NULL,
-    user_id bigint,
-    city_id integer,
-    state_id integer
-);
 
 
 --
@@ -2282,6 +2303,32 @@ GRANT SELECT ON TABLE states TO anonymous;
 SET search_path = rs, pg_catalog;
 
 --
+-- Name: regra_afiliados; Type: ACL; Schema: rs; Owner: -
+--
+
+REVOKE ALL ON TABLE regra_afiliados FROM PUBLIC;
+REVOKE ALL ON TABLE regra_afiliados FROM ton;
+GRANT ALL ON TABLE regra_afiliados TO ton;
+GRANT SELECT ON TABLE regra_afiliados TO web_user;
+GRANT SELECT ON TABLE regra_afiliados TO admin;
+
+
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: user_access_roles; Type: ACL; Schema: 1; Owner: -
+--
+
+REVOKE ALL ON TABLE user_access_roles FROM PUBLIC;
+REVOKE ALL ON TABLE user_access_roles FROM ton;
+GRANT ALL ON TABLE user_access_roles TO ton;
+GRANT SELECT ON TABLE user_access_roles TO admin;
+GRANT SELECT ON TABLE user_access_roles TO web_user;
+
+
+SET search_path = rs, pg_catalog;
+
+--
 -- Name: users; Type: ACL; Schema: rs; Owner: -
 --
 
@@ -2306,17 +2353,6 @@ GRANT SELECT,INSERT ON TABLE users TO admin;
 
 
 SET search_path = rs, pg_catalog;
-
---
--- Name: regra_afiliados; Type: ACL; Schema: rs; Owner: -
---
-
-REVOKE ALL ON TABLE regra_afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE regra_afiliados FROM ton;
-GRANT ALL ON TABLE regra_afiliados TO ton;
-GRANT SELECT ON TABLE regra_afiliados TO web_user;
-GRANT SELECT ON TABLE regra_afiliados TO admin;
-
 
 --
 -- Name: users_id_seq; Type: ACL; Schema: rs; Owner: -
