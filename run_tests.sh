@@ -63,7 +63,7 @@ echo "Initiating PostgREST server..."
 ./$dir/$postgrest_bin "postgres://postgrest@localhost/$db" -s 1 -a anonymous -p $port --jwt-secret gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C > logs/postgrest.log 2>&1 &
 
 echo "Running tests..."
-sleep 8
+sleep 10
 for f in test/*.yml
 do
     echo ""

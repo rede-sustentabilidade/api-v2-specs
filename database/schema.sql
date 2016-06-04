@@ -333,6 +333,18 @@ CREATE FUNCTION is_owner_or_admin(bigint) RETURNS boolean
        $_$;
 
 
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: access_roles; Type: VIEW; Schema: 1; Owner: -
+--
+
+CREATE VIEW access_roles AS
+ SELECT pr.rolname AS name
+   FROM pg_roles pr
+  WHERE (pr.rolname ~* 'rs_role'::text);
+
+
 SET search_path = rs, pg_catalog;
 
 SET default_tablespace = '';
@@ -2205,6 +2217,17 @@ GRANT USAGE ON SCHEMA rs TO admin;
 
 
 SET search_path = "1", pg_catalog;
+
+--
+-- Name: access_roles; Type: ACL; Schema: 1; Owner: -
+--
+
+REVOKE ALL ON TABLE access_roles FROM PUBLIC;
+REVOKE ALL ON TABLE access_roles FROM ton;
+GRANT ALL ON TABLE access_roles TO ton;
+GRANT SELECT ON TABLE access_roles TO admin;
+GRANT SELECT ON TABLE access_roles TO web_user;
+
 
 --
 -- Name: cities; Type: ACL; Schema: 1; Owner: -
