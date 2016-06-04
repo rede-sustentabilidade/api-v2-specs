@@ -66,4 +66,5 @@ user_id 1 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2
 user_id 2 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMiJ9.WZ7sSB1sTCaFoCpbBJ0GnyDNYHeWaZBbRQMypParGEc
 user_id 3 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiMyJ9.etSjPXHxlxM3RqPt8z1GqqGbCJdVqzWPORh_9VU3xa4
 user_id 4 -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiNCJ9.ht-uAyQ5r5rfqtHpOWsfHLmeE-sykJFlW9pVEGAiKyQ
+user_id 4 (has admin token) -> eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoiNCJ9.Kx4gqaO79L39DPKv1WD1xOS-8EcEV-nBWZuHkMr-txs
 ```
