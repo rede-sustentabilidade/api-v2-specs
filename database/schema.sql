@@ -2,12 +2,16 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.5.3
+-- Dumped by pg_dump version 9.5.1
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: 1; Type: SCHEMA; Schema: -; Owner: -
@@ -49,6 +53,20 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 --
@@ -116,12 +134,6 @@ CREATE FUNCTION api_insert_filiado() RETURNS trigger
             v_filiado_id numeric;
             v_filiado "1".filiados;
         BEGIN
-            -- investigar quais os filtros de permissões que deve ser aplicado
-            -- investigar se deve existir validação sobre a cidade em que o usuário atual esta cadastrando
-            -- investigar se deve adicionar os campos novos do formulario (colunas novas)
-            -- investigar nova validação de dados no banco
-        
-            -- investigar relacionamento com usuário talvés necessidade de criar um user antes
             INSERT INTO rs.afiliados (user_id, birthday, nome_mae, nacionalidade, 
                 cep, numero, complemento, endereco, bairro, cidade, uf, telefone_residencial, 
                 telefone_celular, telefone_comercial, contribuicao, 
@@ -189,9 +201,9 @@ CREATE FUNCTION api_insert_filiado() RETURNS trigger
                     NEW.fullname as fullname,
                     NEW.filiaweb as filiaweb)
             RETURNING user_id INTO v_filiado_id;
-            
+
             SELECT * FROM "1".filiados WHERE user_id = v_filiado_id INTO v_filiado;
-            
+
             RETURN v_filiado;
         END;
     $$;
@@ -289,6 +301,26 @@ CREATE FUNCTION current_user_roles() RETURNS name[]
 
 
 --
+-- Name: insert_api_users(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION insert_api_users() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+          DECLARE
+            v_user "1".users;
+          BEGIN
+            INSERT INTO rs.users (username, password) VALUES
+                   (NEW.username, crypt(NEW.password, gen_salt('bf')));
+
+            SELECT * FROM "1".users WHERE username = NEW.username INTO v_user;
+
+            RETURN v_user; 
+          END;
+       $$;
+
+
+--
 -- Name: is_owner_or_admin(bigint); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -308,7 +340,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: afiliados; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: afiliados; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE afiliados (
@@ -435,10 +467,36 @@ CREATE VIEW filiados AS
   WHERE (public.can_access_with_roles(public.all_rs_roles(), a.cidade_id, a.estado_id) OR public.is_owner_or_admin(a.user_id));
 
 
+SET search_path = rs, pg_catalog;
+
+--
+-- Name: users; Type: TABLE; Schema: rs; Owner: -
+--
+
+CREATE TABLE users (
+    username text NOT NULL,
+    password text NOT NULL,
+    id integer NOT NULL
+);
+
+
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: users; Type: VIEW; Schema: 1; Owner: -
+--
+
+CREATE VIEW users AS
+ SELECT users.id,
+    users.username,
+    ''::text AS password
+   FROM rs.users;
+
+
 SET search_path = public, pg_catalog;
 
 --
--- Name: goose_db_version; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+-- Name: goose_db_version; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE goose_db_version (
@@ -483,7 +541,7 @@ CREATE SEQUENCE regra_afiliados_id_seq
 SET search_path = rs, pg_catalog;
 
 --
--- Name: LinkAfiliadoInteresse; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: LinkAfiliadoInteresse; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE "LinkAfiliadoInteresse" (
@@ -493,7 +551,7 @@ CREATE TABLE "LinkAfiliadoInteresse" (
 
 
 --
--- Name: LinkAtuacaoProfissional; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: LinkAtuacaoProfissional; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE "LinkAtuacaoProfissional" (
@@ -522,7 +580,7 @@ ALTER SEQUENCE afiliados_user_id_seq OWNED BY afiliados.user_id;
 
 
 --
--- Name: areasInteresse; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: areasInteresse; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE "areasInteresse" (
@@ -553,7 +611,7 @@ ALTER SEQUENCE "areasInteresse_id_seq" OWNED BY "areasInteresse".id;
 
 
 --
--- Name: atuacoesProfissionais; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: atuacoesProfissionais; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE "atuacoesProfissionais" (
@@ -584,7 +642,7 @@ ALTER SEQUENCE "atuacoesProfissionais_id_seq" OWNED BY "atuacoesProfissionais".i
 
 
 --
--- Name: cidades; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: cidades; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE cidades (
@@ -597,7 +655,7 @@ CREATE TABLE cidades (
 
 
 --
--- Name: cms; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: cms; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE cms (
@@ -629,7 +687,7 @@ ALTER SEQUENCE cms_id_seq OWNED BY cms.id;
 
 
 --
--- Name: dados_contribuicoes; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: dados_contribuicoes; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE dados_contribuicoes (
@@ -652,7 +710,7 @@ CREATE TABLE dados_contribuicoes (
 
 
 --
--- Name: doacoes; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: doacoes; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE doacoes (
@@ -697,7 +755,7 @@ ALTER SEQUENCE doacoes_id_seq OWNED BY doacoes.id;
 
 
 --
--- Name: estados; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: estados; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE estados (
@@ -709,7 +767,7 @@ CREATE TABLE estados (
 
 
 --
--- Name: filiaweb_csv; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: filiaweb_csv; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE filiaweb_csv (
@@ -721,7 +779,7 @@ CREATE TABLE filiaweb_csv (
 
 
 --
--- Name: filiaweb_csv_logs; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: filiaweb_csv_logs; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE filiaweb_csv_logs (
@@ -734,7 +792,7 @@ CREATE TABLE filiaweb_csv_logs (
 
 
 --
--- Name: impugnacoes; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: impugnacoes; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE impugnacoes (
@@ -768,7 +826,7 @@ ALTER SEQUENCE impugnacoes_id_seq OWNED BY impugnacoes.id;
 
 
 --
--- Name: migrations; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: migrations; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE migrations (
@@ -778,7 +836,7 @@ CREATE TABLE migrations (
 
 
 --
--- Name: notificacoes; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: notificacoes; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE notificacoes (
@@ -815,7 +873,7 @@ ALTER SEQUENCE notificacoes_id_seq OWNED BY notificacoes.id;
 
 
 --
--- Name: notificacoes_usuario; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: notificacoes_usuario; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE notificacoes_usuario (
@@ -825,31 +883,31 @@ CREATE TABLE notificacoes_usuario (
 
 
 --
--- Name: oauth_access_tokens; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_access_tokens; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE oauth_access_tokens (
     access_token text NOT NULL,
     client_id text NOT NULL,
-    user_id uuid NOT NULL,
-    expires timestamp without time zone NOT NULL
+    expires timestamp without time zone NOT NULL,
+    user_id integer
 );
 
 
 --
--- Name: oauth_authorization_codes; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_authorization_codes; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE oauth_authorization_codes (
     code text NOT NULL,
     client_id text NOT NULL,
-    user_id uuid NOT NULL,
-    redirect_uri text
+    redirect_uri text,
+    user_id integer
 );
 
 
 --
--- Name: oauth_clients; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_clients; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE oauth_clients (
@@ -861,19 +919,19 @@ CREATE TABLE oauth_clients (
 
 
 --
--- Name: oauth_refresh_tokens; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_refresh_tokens; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE oauth_refresh_tokens (
     refresh_token text NOT NULL,
     client_id text NOT NULL,
-    user_id uuid NOT NULL,
-    expires timestamp without time zone NOT NULL
+    expires timestamp without time zone NOT NULL,
+    user_id integer
 );
 
 
 --
--- Name: payments; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: payments; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE payments (
@@ -923,7 +981,7 @@ ALTER SEQUENCE payments_id_seq OWNED BY payments.id;
 
 
 --
--- Name: regra_afiliados; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: regra_afiliados; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE regra_afiliados (
@@ -937,7 +995,7 @@ CREATE TABLE regra_afiliados (
 
 
 --
--- Name: socialnetw; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: socialnetw; Type: TABLE; Schema: rs; Owner: -
 --
 
 CREATE TABLE socialnetw (
@@ -971,20 +1029,28 @@ ALTER SEQUENCE socialnetw_id_seq OWNED BY socialnetw.id;
 
 
 --
--- Name: users; Type: TABLE; Schema: rs; Owner: -; Tablespace: 
+-- Name: users_id_seq; Type: SEQUENCE; Schema: rs; Owner: -
 --
 
-CREATE TABLE users (
-    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    username text NOT NULL,
-    password text NOT NULL
-);
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: rs; Owner: -
+--
+
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
 SET search_path = sqitch, pg_catalog;
 
 --
--- Name: changes; Type: TABLE; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: changes; Type: TABLE; Schema: sqitch; Owner: -
 --
 
 CREATE TABLE changes (
@@ -1087,7 +1153,7 @@ COMMENT ON COLUMN changes.planner_email IS 'Email address of the user who planne
 
 
 --
--- Name: dependencies; Type: TABLE; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: dependencies; Type: TABLE; Schema: sqitch; Owner: -
 --
 
 CREATE TABLE dependencies (
@@ -1135,7 +1201,7 @@ COMMENT ON COLUMN dependencies.dependency_id IS 'Change ID the dependency resolv
 
 
 --
--- Name: events; Type: TABLE; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: events; Type: TABLE; Schema: sqitch; Owner: -
 --
 
 CREATE TABLE events (
@@ -1263,7 +1329,7 @@ COMMENT ON COLUMN events.planner_email IS 'Email address of the user who plan pl
 
 
 --
--- Name: projects; Type: TABLE; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: projects; Type: TABLE; Schema: sqitch; Owner: -
 --
 
 CREATE TABLE projects (
@@ -1318,7 +1384,7 @@ COMMENT ON COLUMN projects.creator_email IS 'Email address of the user who added
 
 
 --
--- Name: releases; Type: TABLE; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: releases; Type: TABLE; Schema: sqitch; Owner: -
 --
 
 CREATE TABLE releases (
@@ -1365,7 +1431,7 @@ COMMENT ON COLUMN releases.installer_email IS 'Email address of the user who ins
 
 
 --
--- Name: tags; Type: TABLE; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: tags; Type: TABLE; Schema: sqitch; Owner: -
 --
 
 CREATE TABLE tags (
@@ -1541,10 +1607,17 @@ ALTER TABLE ONLY payments ALTER COLUMN id SET DEFAULT nextval('payments_id_seq':
 ALTER TABLE ONLY socialnetw ALTER COLUMN id SET DEFAULT nextval('socialnetw_id_seq'::regclass);
 
 
+--
+-- Name: id; Type: DEFAULT; Schema: rs; Owner: -
+--
+
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
 SET search_path = public, pg_catalog;
 
 --
--- Name: goose_db_version_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+-- Name: goose_db_version_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY goose_db_version
@@ -1554,7 +1627,7 @@ ALTER TABLE ONLY goose_db_version
 SET search_path = rs, pg_catalog;
 
 --
--- Name: LinkAfiliadoInteresse_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: LinkAfiliadoInteresse_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY "LinkAfiliadoInteresse"
@@ -1562,7 +1635,7 @@ ALTER TABLE ONLY "LinkAfiliadoInteresse"
 
 
 --
--- Name: LinkAtuacaoProfissional_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: LinkAtuacaoProfissional_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY "LinkAtuacaoProfissional"
@@ -1570,7 +1643,7 @@ ALTER TABLE ONLY "LinkAtuacaoProfissional"
 
 
 --
--- Name: afiliados_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: afiliados_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY afiliados
@@ -1578,7 +1651,7 @@ ALTER TABLE ONLY afiliados
 
 
 --
--- Name: areasInteresse_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: areasInteresse_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY "areasInteresse"
@@ -1586,7 +1659,7 @@ ALTER TABLE ONLY "areasInteresse"
 
 
 --
--- Name: atuacoesProfissionais_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: atuacoesProfissionais_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY "atuacoesProfissionais"
@@ -1594,7 +1667,7 @@ ALTER TABLE ONLY "atuacoesProfissionais"
 
 
 --
--- Name: cidades_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: cidades_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY cidades
@@ -1602,7 +1675,7 @@ ALTER TABLE ONLY cidades
 
 
 --
--- Name: cms_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: cms_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY cms
@@ -1610,7 +1683,7 @@ ALTER TABLE ONLY cms
 
 
 --
--- Name: dados_contribuicoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: dados_contribuicoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY dados_contribuicoes
@@ -1618,7 +1691,7 @@ ALTER TABLE ONLY dados_contribuicoes
 
 
 --
--- Name: doacoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: doacoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY doacoes
@@ -1626,7 +1699,7 @@ ALTER TABLE ONLY doacoes
 
 
 --
--- Name: estados_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: estados_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY estados
@@ -1634,7 +1707,7 @@ ALTER TABLE ONLY estados
 
 
 --
--- Name: filiaweb_csv_logs_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: filiaweb_csv_logs_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY filiaweb_csv_logs
@@ -1642,7 +1715,7 @@ ALTER TABLE ONLY filiaweb_csv_logs
 
 
 --
--- Name: filiaweb_csv_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: filiaweb_csv_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY filiaweb_csv
@@ -1650,7 +1723,7 @@ ALTER TABLE ONLY filiaweb_csv
 
 
 --
--- Name: impugnacoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: impugnacoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY impugnacoes
@@ -1658,7 +1731,7 @@ ALTER TABLE ONLY impugnacoes
 
 
 --
--- Name: notificacoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: notificacoes_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY notificacoes
@@ -1666,7 +1739,7 @@ ALTER TABLE ONLY notificacoes
 
 
 --
--- Name: notificacoes_usuario_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: notificacoes_usuario_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY notificacoes_usuario
@@ -1674,7 +1747,7 @@ ALTER TABLE ONLY notificacoes_usuario
 
 
 --
--- Name: oauth_access_tokens_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_access_tokens_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY oauth_access_tokens
@@ -1682,7 +1755,7 @@ ALTER TABLE ONLY oauth_access_tokens
 
 
 --
--- Name: oauth_clients_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_clients_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY oauth_clients
@@ -1690,7 +1763,7 @@ ALTER TABLE ONLY oauth_clients
 
 
 --
--- Name: oauth_refresh_tokens_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: oauth_refresh_tokens_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY oauth_refresh_tokens
@@ -1698,7 +1771,7 @@ ALTER TABLE ONLY oauth_refresh_tokens
 
 
 --
--- Name: payments_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: payments_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY payments
@@ -1706,7 +1779,7 @@ ALTER TABLE ONLY payments
 
 
 --
--- Name: regra_afiliados_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: regra_afiliados_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY regra_afiliados
@@ -1714,7 +1787,7 @@ ALTER TABLE ONLY regra_afiliados
 
 
 --
--- Name: socialnetw_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: socialnetw_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY socialnetw
@@ -1722,7 +1795,7 @@ ALTER TABLE ONLY socialnetw
 
 
 --
--- Name: users_pkey; Type: CONSTRAINT; Schema: rs; Owner: -; Tablespace: 
+-- Name: users_pkey; Type: CONSTRAINT; Schema: rs; Owner: -
 --
 
 ALTER TABLE ONLY users
@@ -1732,7 +1805,7 @@ ALTER TABLE ONLY users
 SET search_path = sqitch, pg_catalog;
 
 --
--- Name: changes_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: changes_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY changes
@@ -1740,7 +1813,7 @@ ALTER TABLE ONLY changes
 
 
 --
--- Name: changes_project_script_hash_key; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: changes_project_script_hash_key; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY changes
@@ -1748,7 +1821,7 @@ ALTER TABLE ONLY changes
 
 
 --
--- Name: dependencies_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: dependencies_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY dependencies
@@ -1756,7 +1829,7 @@ ALTER TABLE ONLY dependencies
 
 
 --
--- Name: events_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: events_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY events
@@ -1764,7 +1837,7 @@ ALTER TABLE ONLY events
 
 
 --
--- Name: projects_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: projects_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY projects
@@ -1772,7 +1845,7 @@ ALTER TABLE ONLY projects
 
 
 --
--- Name: projects_uri_key; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: projects_uri_key; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY projects
@@ -1780,7 +1853,7 @@ ALTER TABLE ONLY projects
 
 
 --
--- Name: releases_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: releases_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY releases
@@ -1788,7 +1861,7 @@ ALTER TABLE ONLY releases
 
 
 --
--- Name: tags_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: tags_pkey; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY tags
@@ -1796,7 +1869,7 @@ ALTER TABLE ONLY tags
 
 
 --
--- Name: tags_project_tag_key; Type: CONSTRAINT; Schema: sqitch; Owner: -; Tablespace: 
+-- Name: tags_project_tag_key; Type: CONSTRAINT; Schema: sqitch; Owner: -
 --
 
 ALTER TABLE ONLY tags
@@ -1806,105 +1879,105 @@ ALTER TABLE ONLY tags
 SET search_path = rs, pg_catalog;
 
 --
--- Name: afiliados_region_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: afiliados_region_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX afiliados_region_idx ON afiliados USING btree (user_id, cidade_id, estado_id);
 
 
 --
--- Name: cidades_order_asc; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: cidades_order_asc; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX cidades_order_asc ON cidades USING btree (nome);
 
 
 --
--- Name: cidades_uf; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: cidades_uf; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX cidades_uf ON cidades USING btree (uf);
 
 
 --
--- Name: regra_afiliados_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: regra_afiliados_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX regra_afiliados_idx ON regra_afiliados USING btree (user_id, role_name, access_level, city_id, state_id);
 
 
 --
--- Name: role_aclv_user_uix; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: role_aclv_user_uix; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE UNIQUE INDEX role_aclv_user_uix ON regra_afiliados USING btree (user_id, access_level, role_name);
 
 
 --
--- Name: rs_migrate_LinkAfiliadoInteresse_id_areaInteresse1_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_LinkAfiliadoInteresse_id_areaInteresse1_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX "rs_migrate_LinkAfiliadoInteresse_id_areaInteresse1_idx" ON "LinkAfiliadoInteresse" USING btree ("id_areaInteresse");
 
 
 --
--- Name: rs_migrate_LinkAtuacaoProfissional_id_area1_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_LinkAtuacaoProfissional_id_area1_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX "rs_migrate_LinkAtuacaoProfissional_id_area1_idx" ON "LinkAtuacaoProfissional" USING btree (id_area);
 
 
 --
--- Name: rs_migrate_afiliados_quem_abonou1_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_afiliados_quem_abonou1_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX rs_migrate_afiliados_quem_abonou1_idx ON afiliados USING btree (quem_abonou);
 
 
 --
--- Name: rs_migrate_impugnacoes_impugnado1_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_impugnacoes_impugnado1_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX rs_migrate_impugnacoes_impugnado1_idx ON impugnacoes USING btree (impugnado);
 
 
 --
--- Name: rs_migrate_impugnacoes_quem_impugnou2_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_impugnacoes_quem_impugnou2_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX rs_migrate_impugnacoes_quem_impugnou2_idx ON impugnacoes USING btree (quem_impugnou);
 
 
 --
--- Name: rs_migrate_socialnetw_credenciador2_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_socialnetw_credenciador2_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE UNIQUE INDEX rs_migrate_socialnetw_credenciador2_idx ON socialnetw USING btree (credenciador, credenciais);
 
 
 --
--- Name: rs_migrate_socialnetw_id_user1_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: rs_migrate_socialnetw_id_user1_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE UNIQUE INDEX rs_migrate_socialnetw_id_user1_idx ON socialnetw USING btree (id_user, credenciador);
 
 
 --
--- Name: unique_uf_idx; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: unique_uf_idx; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE UNIQUE INDEX unique_uf_idx ON estados USING btree (uf);
 
 
 --
--- Name: users_username_password; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: users_username_password; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE INDEX users_username_password ON users USING btree (username, password);
 
 
 --
--- Name: users_username_unique; Type: INDEX; Schema: rs; Owner: -; Tablespace: 
+-- Name: users_username_unique; Type: INDEX; Schema: rs; Owner: -
 --
 
 CREATE UNIQUE INDEX users_username_unique ON users USING btree (username);
@@ -1917,6 +1990,13 @@ SET search_path = "1", pg_catalog;
 --
 
 CREATE TRIGGER api_insert_filiado INSTEAD OF INSERT ON filiados FOR EACH ROW EXECUTE PROCEDURE public.api_insert_filiado();
+
+
+--
+-- Name: insert_api_users; Type: TRIGGER; Schema: 1; Owner: -
+--
+
+CREATE TRIGGER insert_api_users INSTEAD OF INSERT ON users FOR EACH ROW EXECUTE PROCEDURE public.insert_api_users();
 
 
 SET search_path = rs, pg_catalog;
@@ -2048,8 +2128,8 @@ ALTER TABLE ONLY tags
 --
 
 REVOKE ALL ON SCHEMA "1" FROM PUBLIC;
-REVOKE ALL ON SCHEMA "1" FROM rs;
-GRANT ALL ON SCHEMA "1" TO rs;
+REVOKE ALL ON SCHEMA "1" FROM ton;
+GRANT ALL ON SCHEMA "1" TO ton;
 GRANT USAGE ON SCHEMA "1" TO anonymous;
 GRANT USAGE ON SCHEMA "1" TO admin;
 GRANT USAGE ON SCHEMA "1" TO web_user;
@@ -2060,8 +2140,7 @@ GRANT USAGE ON SCHEMA "1" TO web_user;
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM rs;
-GRANT ALL ON SCHEMA public TO rs;
+REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
@@ -2071,8 +2150,8 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 
 REVOKE ALL ON SCHEMA rs FROM PUBLIC;
-REVOKE ALL ON SCHEMA rs FROM rs;
-GRANT ALL ON SCHEMA rs TO rs;
+REVOKE ALL ON SCHEMA rs FROM ton;
+GRANT ALL ON SCHEMA rs TO ton;
 GRANT ALL ON SCHEMA rs TO rede;
 GRANT USAGE ON SCHEMA rs TO web_user;
 GRANT USAGE ON SCHEMA rs TO admin;
@@ -2085,8 +2164,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE afiliados FROM rs;
-GRANT ALL ON TABLE afiliados TO rs;
+REVOKE ALL ON TABLE afiliados FROM ton;
+GRANT ALL ON TABLE afiliados TO ton;
 GRANT SELECT,INSERT ON TABLE afiliados TO web_user;
 GRANT SELECT ON TABLE afiliados TO admin;
 
@@ -2098,10 +2177,36 @@ SET search_path = "1", pg_catalog;
 --
 
 REVOKE ALL ON TABLE filiados FROM PUBLIC;
-REVOKE ALL ON TABLE filiados FROM rs;
-GRANT ALL ON TABLE filiados TO rs;
+REVOKE ALL ON TABLE filiados FROM ton;
+GRANT ALL ON TABLE filiados TO ton;
 GRANT SELECT ON TABLE filiados TO admin;
 GRANT SELECT,INSERT ON TABLE filiados TO web_user;
+
+
+SET search_path = rs, pg_catalog;
+
+--
+-- Name: users; Type: ACL; Schema: rs; Owner: -
+--
+
+REVOKE ALL ON TABLE users FROM PUBLIC;
+REVOKE ALL ON TABLE users FROM ton;
+GRANT ALL ON TABLE users TO ton;
+GRANT INSERT ON TABLE users TO web_user;
+GRANT INSERT ON TABLE users TO admin;
+
+
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: users; Type: ACL; Schema: 1; Owner: -
+--
+
+REVOKE ALL ON TABLE users FROM PUBLIC;
+REVOKE ALL ON TABLE users FROM ton;
+GRANT ALL ON TABLE users TO ton;
+GRANT SELECT,INSERT ON TABLE users TO web_user;
+GRANT SELECT,INSERT ON TABLE users TO admin;
 
 
 SET search_path = rs, pg_catalog;
@@ -2111,10 +2216,21 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE regra_afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE regra_afiliados FROM rs;
-GRANT ALL ON TABLE regra_afiliados TO rs;
+REVOKE ALL ON TABLE regra_afiliados FROM ton;
+GRANT ALL ON TABLE regra_afiliados TO ton;
 GRANT SELECT ON TABLE regra_afiliados TO web_user;
 GRANT SELECT ON TABLE regra_afiliados TO admin;
+
+
+--
+-- Name: users_id_seq; Type: ACL; Schema: rs; Owner: -
+--
+
+REVOKE ALL ON SEQUENCE users_id_seq FROM PUBLIC;
+REVOKE ALL ON SEQUENCE users_id_seq FROM ton;
+GRANT ALL ON SEQUENCE users_id_seq TO ton;
+GRANT USAGE ON SEQUENCE users_id_seq TO web_user;
+GRANT USAGE ON SEQUENCE users_id_seq TO admin;
 
 
 --
