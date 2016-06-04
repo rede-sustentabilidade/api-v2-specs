@@ -60,10 +60,10 @@ if [[ $? -ne 0 ]]; then
 fi
 
 echo "Initiating PostgREST server..."
-./$dir/$postgrest_bin "postgres://postgrest@localhost/$db" -s "1" -a anonymous -p $port --jwt-secret gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C > logs/postgrest.log 2>&1 &
+./$dir/$postgrest_bin "postgres://postgrest@localhost/$db" -s 1 -a anonymous -p $port --jwt-secret gZH75aKtMN3Yj0iPS4hcgUuTwjAzZr9C > logs/postgrest.log 2>&1 &
 
 echo "Running tests..."
-sleep 2
+sleep 8
 for f in test/*.yml
 do
     echo ""
