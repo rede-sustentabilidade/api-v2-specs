@@ -340,6 +340,36 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: cidades; Type: TABLE; Schema: rs; Owner: -
+--
+
+CREATE TABLE cidades (
+    id integer NOT NULL,
+    estado_id integer NOT NULL,
+    codigo integer,
+    nome text NOT NULL,
+    uf text NOT NULL
+);
+
+
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: cities; Type: VIEW; Schema: 1; Owner: -
+--
+
+CREATE VIEW cities AS
+ SELECT c.id,
+    c.estado_id AS state_id,
+    c.codigo AS code,
+    c.nome AS name,
+    c.uf AS state_abbr
+   FROM rs.cidades c;
+
+
+SET search_path = rs, pg_catalog;
+
+--
 -- Name: afiliados; Type: TABLE; Schema: rs; Owner: -
 --
 
@@ -465,6 +495,21 @@ CREATE VIEW filiados AS
     a.filiaweb
    FROM rs.afiliados a
   WHERE (public.can_access_with_roles(public.all_rs_roles(), a.cidade_id, a.estado_id) OR public.is_owner_or_admin(a.user_id));
+
+
+--
+-- Name: states; Type: TABLE; Schema: 1; Owner: -
+--
+
+CREATE TABLE states (
+    id integer,
+    name text,
+    abbr text,
+    region text,
+    total_cities bigint
+);
+
+ALTER TABLE ONLY states REPLICA IDENTITY NOTHING;
 
 
 SET search_path = rs, pg_catalog;
@@ -639,19 +684,6 @@ CREATE SEQUENCE "atuacoesProfissionais_id_seq"
 --
 
 ALTER SEQUENCE "atuacoesProfissionais_id_seq" OWNED BY "atuacoesProfissionais".id;
-
-
---
--- Name: cidades; Type: TABLE; Schema: rs; Owner: -
---
-
-CREATE TABLE cidades (
-    id integer NOT NULL,
-    estado_id integer NOT NULL,
-    codigo integer,
-    nome text NOT NULL,
-    uf text NOT NULL
-);
 
 
 --
@@ -1986,6 +2018,21 @@ CREATE UNIQUE INDEX users_username_unique ON users USING btree (username);
 SET search_path = "1", pg_catalog;
 
 --
+-- Name: _RETURN; Type: RULE; Schema: 1; Owner: -
+--
+
+CREATE RULE "_RETURN" AS
+    ON SELECT TO states DO INSTEAD  SELECT e.id,
+    e.nome AS name,
+    e.uf AS abbr,
+    e.regiao AS region,
+    count(DISTINCT c.id) AS total_cities
+   FROM (rs.estados e
+     JOIN rs.cidades c ON ((c.estado_id = e.id)))
+  GROUP BY e.id;
+
+
+--
 -- Name: api_insert_filiado; Type: TRIGGER; Schema: 1; Owner: -
 --
 
@@ -2157,6 +2204,20 @@ GRANT USAGE ON SCHEMA rs TO web_user;
 GRANT USAGE ON SCHEMA rs TO admin;
 
 
+SET search_path = "1", pg_catalog;
+
+--
+-- Name: cities; Type: ACL; Schema: 1; Owner: -
+--
+
+REVOKE ALL ON TABLE cities FROM PUBLIC;
+REVOKE ALL ON TABLE cities FROM ton;
+GRANT ALL ON TABLE cities TO ton;
+GRANT SELECT ON TABLE cities TO admin;
+GRANT SELECT ON TABLE cities TO web_user;
+GRANT SELECT ON TABLE cities TO anonymous;
+
+
 SET search_path = rs, pg_catalog;
 
 --
@@ -2181,6 +2242,18 @@ REVOKE ALL ON TABLE filiados FROM ton;
 GRANT ALL ON TABLE filiados TO ton;
 GRANT SELECT ON TABLE filiados TO admin;
 GRANT SELECT,INSERT ON TABLE filiados TO web_user;
+
+
+--
+-- Name: states; Type: ACL; Schema: 1; Owner: -
+--
+
+REVOKE ALL ON TABLE states FROM PUBLIC;
+REVOKE ALL ON TABLE states FROM ton;
+GRANT ALL ON TABLE states TO ton;
+GRANT SELECT ON TABLE states TO admin;
+GRANT SELECT ON TABLE states TO web_user;
+GRANT SELECT ON TABLE states TO anonymous;
 
 
 SET search_path = rs, pg_catalog;
