@@ -1,0 +1,22 @@
+
+---
+- config:
+  - testset: "States and cities endpoints"
+
+- test:
+  - name: "Get on states"
+  - url: "/states?id=eq.1"
+  - validators:
+      - compare: {jsonpath_mini: '0.abbr', comparator: 'str_eq', expected: 'AC' }
+      - compare: {jsonpath_mini: '0.total_cities', comparator: 'str_eq', expected: '1' }
+      - compare: {jsonpath_mini: '1', comparator: 'str_eq', expected: 'None' }
+
+- test:
+  - name: "Get on cities"
+  - url: "/cities?id=eq.2"
+  - validators:
+      - compare: {jsonpath_mini: '0.state_abbr', comparator: 'str_eq', expected: 'AL' }
+      - compare: {jsonpath_mini: '0.name', comparator: 'str_eq', expected: 'B City' }
+      - compare: {jsonpath_mini: '1', comparator: 'str_eq', expected: 'None' }
+
+
