@@ -1,0 +1,17 @@
+
+---
+- config:
+  - testset: "access_roles endpoint"
+
+- test:
+  - name: "Basic get is not avaiable for anonymous"
+  - url: "/access_roles"
+  - expected_status: [404]
+
+- test:
+  - name: "Get a list of access roles when is not anymous"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoid2ViX3VzZXIiLCJ1c2VyX2lkIjoiNCJ9.ht-uAyQ5r5rfqtHpOWsfHLmeE-sykJFlW9pVEGAiKyQ'}
+  - url: "/access_roles?name=eq.rs_role_afiliado"
+  - validators:
+      - compare: {jsonpath_mini: '0.name', comparator: 'str_eq', expected: 'rs_role_afiliado'}
+      - compare: {jsonpath_mini: '1', comparator: 'str_eq', expected: 'None'}
