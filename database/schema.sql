@@ -510,6 +510,16 @@ CREATE VIEW filiados AS
 
 
 --
+-- Name: me; Type: VIEW; Schema: 1; Owner: -
+--
+
+CREATE VIEW me AS
+ SELECT json_build_object('id', a.user_id, 'name', a.nome, 'email', a.email) AS me
+   FROM rs.afiliados a
+  WHERE (a.user_id = public.current_user_id());
+
+
+--
 -- Name: states; Type: TABLE; Schema: 1; Owner: -
 --
 
@@ -2208,8 +2218,8 @@ ALTER TABLE ONLY tags
 --
 
 REVOKE ALL ON SCHEMA "1" FROM PUBLIC;
-REVOKE ALL ON SCHEMA "1" FROM ton;
-GRANT ALL ON SCHEMA "1" TO ton;
+REVOKE ALL ON SCHEMA "1" FROM rs;
+GRANT ALL ON SCHEMA "1" TO rs;
 GRANT USAGE ON SCHEMA "1" TO anonymous;
 GRANT USAGE ON SCHEMA "1" TO admin;
 GRANT USAGE ON SCHEMA "1" TO web_user;
@@ -2230,8 +2240,8 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 
 REVOKE ALL ON SCHEMA rs FROM PUBLIC;
-REVOKE ALL ON SCHEMA rs FROM ton;
-GRANT ALL ON SCHEMA rs TO ton;
+REVOKE ALL ON SCHEMA rs FROM rs;
+GRANT ALL ON SCHEMA rs TO rs;
 GRANT ALL ON SCHEMA rs TO rede;
 GRANT USAGE ON SCHEMA rs TO web_user;
 GRANT USAGE ON SCHEMA rs TO admin;
@@ -2244,8 +2254,8 @@ SET search_path = "1", pg_catalog;
 --
 
 REVOKE ALL ON TABLE access_roles FROM PUBLIC;
-REVOKE ALL ON TABLE access_roles FROM ton;
-GRANT ALL ON TABLE access_roles TO ton;
+REVOKE ALL ON TABLE access_roles FROM rs;
+GRANT ALL ON TABLE access_roles TO rs;
 GRANT SELECT ON TABLE access_roles TO admin;
 GRANT SELECT ON TABLE access_roles TO web_user;
 
@@ -2255,8 +2265,8 @@ GRANT SELECT ON TABLE access_roles TO web_user;
 --
 
 REVOKE ALL ON TABLE cities FROM PUBLIC;
-REVOKE ALL ON TABLE cities FROM ton;
-GRANT ALL ON TABLE cities TO ton;
+REVOKE ALL ON TABLE cities FROM rs;
+GRANT ALL ON TABLE cities TO rs;
 GRANT SELECT ON TABLE cities TO admin;
 GRANT SELECT ON TABLE cities TO web_user;
 GRANT SELECT ON TABLE cities TO anonymous;
@@ -2269,8 +2279,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE afiliados FROM ton;
-GRANT ALL ON TABLE afiliados TO ton;
+REVOKE ALL ON TABLE afiliados FROM rs;
+GRANT ALL ON TABLE afiliados TO rs;
 GRANT SELECT,INSERT ON TABLE afiliados TO web_user;
 GRANT SELECT ON TABLE afiliados TO admin;
 
@@ -2282,10 +2292,21 @@ SET search_path = "1", pg_catalog;
 --
 
 REVOKE ALL ON TABLE filiados FROM PUBLIC;
-REVOKE ALL ON TABLE filiados FROM ton;
-GRANT ALL ON TABLE filiados TO ton;
+REVOKE ALL ON TABLE filiados FROM rs;
+GRANT ALL ON TABLE filiados TO rs;
 GRANT SELECT ON TABLE filiados TO admin;
 GRANT SELECT,INSERT ON TABLE filiados TO web_user;
+
+
+--
+-- Name: me; Type: ACL; Schema: 1; Owner: -
+--
+
+REVOKE ALL ON TABLE me FROM PUBLIC;
+REVOKE ALL ON TABLE me FROM rs;
+GRANT ALL ON TABLE me TO rs;
+GRANT SELECT ON TABLE me TO web_user;
+GRANT SELECT ON TABLE me TO admin;
 
 
 --
@@ -2293,8 +2314,8 @@ GRANT SELECT,INSERT ON TABLE filiados TO web_user;
 --
 
 REVOKE ALL ON TABLE states FROM PUBLIC;
-REVOKE ALL ON TABLE states FROM ton;
-GRANT ALL ON TABLE states TO ton;
+REVOKE ALL ON TABLE states FROM rs;
+GRANT ALL ON TABLE states TO rs;
 GRANT SELECT ON TABLE states TO admin;
 GRANT SELECT ON TABLE states TO web_user;
 GRANT SELECT ON TABLE states TO anonymous;
@@ -2307,8 +2328,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE regra_afiliados FROM PUBLIC;
-REVOKE ALL ON TABLE regra_afiliados FROM ton;
-GRANT ALL ON TABLE regra_afiliados TO ton;
+REVOKE ALL ON TABLE regra_afiliados FROM rs;
+GRANT ALL ON TABLE regra_afiliados TO rs;
 GRANT SELECT ON TABLE regra_afiliados TO web_user;
 GRANT SELECT ON TABLE regra_afiliados TO admin;
 
@@ -2320,8 +2341,8 @@ SET search_path = "1", pg_catalog;
 --
 
 REVOKE ALL ON TABLE user_access_roles FROM PUBLIC;
-REVOKE ALL ON TABLE user_access_roles FROM ton;
-GRANT ALL ON TABLE user_access_roles TO ton;
+REVOKE ALL ON TABLE user_access_roles FROM rs;
+GRANT ALL ON TABLE user_access_roles TO rs;
 GRANT SELECT ON TABLE user_access_roles TO admin;
 GRANT SELECT ON TABLE user_access_roles TO web_user;
 
@@ -2333,8 +2354,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON TABLE users FROM PUBLIC;
-REVOKE ALL ON TABLE users FROM ton;
-GRANT ALL ON TABLE users TO ton;
+REVOKE ALL ON TABLE users FROM rs;
+GRANT ALL ON TABLE users TO rs;
 GRANT INSERT ON TABLE users TO web_user;
 GRANT INSERT ON TABLE users TO admin;
 
@@ -2346,8 +2367,8 @@ SET search_path = "1", pg_catalog;
 --
 
 REVOKE ALL ON TABLE users FROM PUBLIC;
-REVOKE ALL ON TABLE users FROM ton;
-GRANT ALL ON TABLE users TO ton;
+REVOKE ALL ON TABLE users FROM rs;
+GRANT ALL ON TABLE users TO rs;
 GRANT SELECT,INSERT ON TABLE users TO web_user;
 GRANT SELECT,INSERT ON TABLE users TO admin;
 
@@ -2359,8 +2380,8 @@ SET search_path = rs, pg_catalog;
 --
 
 REVOKE ALL ON SEQUENCE users_id_seq FROM PUBLIC;
-REVOKE ALL ON SEQUENCE users_id_seq FROM ton;
-GRANT ALL ON SEQUENCE users_id_seq TO ton;
+REVOKE ALL ON SEQUENCE users_id_seq FROM rs;
+GRANT ALL ON SEQUENCE users_id_seq TO rs;
 GRANT USAGE ON SEQUENCE users_id_seq TO web_user;
 GRANT USAGE ON SEQUENCE users_id_seq TO admin;
 

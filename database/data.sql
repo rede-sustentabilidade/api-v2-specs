@@ -19,12 +19,12 @@ INSERT INTO rs.cidades (id, estado_id, codigo, nome, uf) VALUES
        (3,2,2,'C City','AL'),
        (4,3,2,'D City','AP');
 
-INSERT INTO rs.afiliados (user_id, nome, birthday, cidade_id, estado_id) VALUES
-       (1, 'A Name', '1990-06-10', 2, 2),
-       (2, 'B Name', '1991-06-10', 2, 2),
-       (3, 'C Name', '1992-06-10', 3, 2),
-       (4, 'D Name', '1993-06-10', 4, 3),
-       (5, 'E Name', '1994-06-10', 4, 3);
+INSERT INTO rs.afiliados (user_id, nome, email, birthday, cidade_id, estado_id) VALUES
+       (1, 'A Name', 'a@a.com', '1990-06-10', 2, 2),
+       (2, 'B Name', 'b@b.com', '1991-06-10', 2, 2),
+       (3, 'C Name', 'c@c.com', '1992-06-10', 3, 2),
+       (4, 'D Name', 'd@d.com', '1993-06-10', 4, 3),
+       (5, 'E Name', 'e@e.com', '1994-06-10', 4, 3);
 
 INSERT INTO rs.regra_afiliados (user_id, role_name, access_level, city_id, state_id) VALUES
        (1, 'rs_role_afiliado', 'municipal', 2, null),
