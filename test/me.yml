@@ -1,0 +1,19 @@
+
+---
+- config:
+  - testset: "me"
+
+- test:
+  - name: "Should not enabled for anonymous"
+  - url: "/me"
+  - expected_status: [404]
+
+- test:
+  - name: "Should return current user info"
+  - url: "/me"
+  - headers: {'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYWRtaW4iLCJ1c2VyX2lkIjoiNCJ9.Kx4gqaO79L39DPKv1WD1xOS-8EcEV-nBWZuHkMr-txs'}
+  - validators:
+      - compare: {jsonpath_mini: '0.me.name', comparator: 'str_eq', expected: 'D Name'}
+      - compare: {jsonpath_mini: '0.me.email', comparator: 'str_eq', expected: 'd@d.com'}
+      - compare: {jsonpath_mini: '1', comparator: 'str_eq', expected: 'None'}
+
